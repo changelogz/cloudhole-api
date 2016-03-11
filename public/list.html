@@ -17,10 +17,13 @@
     <tbody>
       <tr ng-repeat="clearance in clearances | orderBy:'createDate'">
         <td>
-          <a ng-href="#/clearance/{{ clearance._id }}">{{ clearance.userAgent }}</a>
+          <a ng-href="#/clearance/{{ clearance._id }}"><span class="glyphicon glyphicon-edit"></span></a>
         </td>
         <td>
-          {{ clearance.cookies }}
+          <div class="well well-sm">{{ clearance.userAgent }}</div>
+        </td>
+        <td>
+          <div class="well">{{ clearance.cookies }}</div>
         </td>
         <td>
           {{ clearance.label }}

@@ -64,6 +64,11 @@ app.post("/clearances", function(req, res) {
     return;
   }
 
+  if (_.findIndex(clearances, {userAgent: req.body.userAgent, cookies: req.body.cookies}) != -1) {
+    handleError(res, "Duplicate clearance", "UserAgent and cookies already exist.", 400);
+    return;
+  }
+
   try {
     newClearance._id = uuid.v4();
     clearances.push(newClearance);

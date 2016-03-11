@@ -36,7 +36,7 @@ var server = app.listen(process.env.PORT || 8080, function () {
 // CLEARANCES API ROUTES BELOW
 
 // Generic error handler used by all endpoints.
-function handleError(reason, message, code) {
+function handleError(res, reason, message, code) {
   console.log("ERROR: " + reason);
   res.status(code || 500).json({"error": message});
 }
@@ -60,7 +60,8 @@ app.post("/clearances", function(req, res) {
   newClearance.createDate = new Date();
 
   if (!(req.body.userAgent && req.body.cookies)) {
-    handleError("Invalid user input", "Must provide a User Agent and Cookies.", 400);
+    handleError(res, "Invalid user input", "Must provide a User Agent and Cookies.", 400);
+    return;
   }
 
   try {
@@ -70,7 +71,7 @@ app.post("/clearances", function(req, res) {
     res.status(201).json(newClearance);
   }
   catch(err) {
-    handleError(err.message, "Failed to create new clearance.");
+    handleError(res, "Failed to create new clearance.", err.message, 500);
   }
 });
 
@@ -86,7 +87,7 @@ app.get("/clearances/:id", function(req, res) {
     res.status(200).json(clearances[index]);
   }
   catch(err) {
-    handleError(err.message, "Failed to get clearance");
+    handleError(res, "Failed to get clearance", err.message, 500);
   }
 });
 
@@ -100,7 +101,7 @@ app.put("/clearances/:id", function(req, res) {
     res.status(204).end();
   }
   catch(err) {
-    handleError(err.message, "Failed to update clearance");
+    handleError(res, "Failed to update clearance", err.message, 500);
   }
 });
 
@@ -112,6 +113,6 @@ app.delete("/clearances/:id", function(req, res) {
     res.status(204).end();
   }
   catch(err) {
-    handleError(err.message, "Failed to delete clearance");
+    handleError(res, "Failed to delete clearance", err.message, 500);
   }
 });

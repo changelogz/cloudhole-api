@@ -1,6 +1,6 @@
 # CloudHole API
 
-CloudHole API is a RESTful API server and web application built with the MEAN stack.
+CloudHole API is an in-memory RESTful API server.
 
 You can deploy a live copy of this application to Heroku with the button below.
 

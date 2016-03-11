@@ -15,9 +15,15 @@
 <div class="container">
   <table class="table table-hover">
     <tbody>
-      <tr ng-repeat="clearance in clearances | orderBy:'userAgent'" style="cursor:pointer">
+      <tr ng-repeat="clearance in clearances | orderBy:'createDate'" style="cursor:pointer">
         <td>
-          <a ng-href="#/clearance/{{clearance._id}}">{{ clearance.userAgent }} {{ clearance.cookies }}</a>
+          <a ng-href="#/clearance/{{clearance._id}}">{{ clearance.userAgent }}</a>
+        </td>
+        <td>
+          {{ clearance.cookies }}
+        </td>
+        <td>
+          {{ clearance.createDate }}
         </td>
       </tr>
     </tbody>

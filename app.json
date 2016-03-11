@@ -3,6 +3,5 @@
   "description": "CloudHole API to allow users to manage and sync CloudFlare cookies.",
   "repository": "https://github.com/scakemyer/cloudhole-api",
   "logo": "https://addons.cdn.mozilla.net/user-media/addon_icons/690/690814-64.png",
-  "keywords": ["node", "express", "angular", "MEAN", "mongodb", "REST", "API"],
-  "addons": ["mongolab"]
+  "keywords": ["node", "express", "angular", "REST", "API"]
 }

@@ -2,8 +2,26 @@ var _ = require("lodash");
 var express = require("express");
 var path = require("path");
 var bodyParser = require("body-parser");
+var jsonfile = require("jsonfile");
+var uuid = require('node-uuid');
+
+var file = "cloudhole.json";
+
+var saveClearances = function() {
+  jsonfile.writeFile(file, clearances, {spaces: 2}, function(err) {
+    if (err != null) {
+      console.error(err);
+    }
+  });
+};
 
 var clearances = [];
+try {
+  clearances = jsonfile.readFileSync(file);
+}
+catch(e) {
+  saveClearances();
+}
 
 var app = express();
 app.use(express.static(__dirname + "/public"));
@@ -46,8 +64,9 @@ app.post("/clearances", function(req, res) {
   }
 
   try {
-    newClearance._id = _.uniqueId();
+    newClearance._id = uuid.v4();
     clearances.push(newClearance);
+    saveClearances();
     res.status(201).json(newClearance);
   }
   catch(err) {
@@ -77,6 +96,7 @@ app.put("/clearances/:id", function(req, res) {
   try {
     var index = _.findIndex(clearances, {_id: req.params.id});
     clearances[index] = updateDoc;
+    saveClearances();
     res.status(204).end();
   }
   catch(err) {
@@ -88,6 +108,7 @@ app.delete("/clearances/:id", function(req, res) {
   try {
     var index = _.findIndex(clearances, {_id: req.params.id});
     clearances.splice(index, 1);
+    saveClearances();
     res.status(204).end();
   }
   catch(err) {

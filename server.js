@@ -80,6 +80,18 @@ app.post("/clearances", function(req, res) {
   }
 });
 
+app.post("/load", function(req, res) {
+  var loadClearances = req.body;
+
+  for (var i = 0; i < loadClearances.length; i++) {
+    var clearance = loadClearances[i];
+    if (_.findIndex(clearances, {userAgent: clearance.userAgent, cookies: clearance.cookies}) == -1) {
+      clearances.push(clearance);
+    }
+  }
+  res.status(201).end();
+});
+
 /*  "/clearances/:id"
  *    GET: find clearance by id
  *    PUT: update clearance by id

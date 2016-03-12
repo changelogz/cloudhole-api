@@ -3,14 +3,19 @@ var express = require("express");
 var path = require("path");
 var bodyParser = require("body-parser");
 var jsonfile = require("jsonfile");
+var request = require("request");
 var uuid = require('node-uuid');
 
 var file = "cloudhole.json";
+var surge = require("surge")({ default: "publish" })
 
 var saveClearances = function() {
   jsonfile.writeFile(file, clearances, {spaces: 2}, function(err) {
     if (err != null) {
       console.error(err);
+    }
+    else {
+      surge([".", "cloudhole.surge.sh"]);
     }
   });
 };
@@ -18,9 +23,19 @@ var saveClearances = function() {
 var clearances = [];
 try {
   clearances = jsonfile.readFileSync(file);
+  saveClearances();
 }
 catch(e) {
-  saveClearances();
+  var url = "https://cloudhole.surge.sh/cloudhole.json"
+  request({
+      url: url,
+      json: true
+  }, function (error, response, data) {
+    if (!error && response.statusCode === 200) {
+      clearances.push(data);
+    }
+    saveClearances();
+  });
 }
 
 var app = express();

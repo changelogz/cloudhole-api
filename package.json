@@ -26,6 +26,7 @@
     "express": "^4.13.4",
     "jsonfile": "^2.2.3",
     "lodash": "^4.6.1",
-    "node-uuid": "^1.4.7"
+    "node-uuid": "^1.4.7",
+    "surge": "^0.17.7"
   }
 }

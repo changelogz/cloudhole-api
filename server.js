@@ -32,7 +32,7 @@ catch(e) {
       json: true
   }, function (error, response, data) {
     if (!error && response.statusCode === 200) {
-      clearances.push(data);
+      clearances = data;
     }
     saveClearances();
   });

@@ -79,7 +79,7 @@ app.post("/clearances", function(req, res) {
     return;
   }
 
-  if (_.findIndex(clearances, {userAgent: req.body.userAgent, cookies: req.body.cookies}) != -1) {
+  if (_.findIndex(clearances, {cookies: req.body.cookies}) != -1) {
     handleError(res, "Duplicate clearance", "UserAgent and cookies already exist.", 400);
     return;
   }
@@ -100,7 +100,7 @@ app.post("/load", function(req, res) {
 
   for (var i = 0; i < loadClearances.length; i++) {
     var clearance = loadClearances[i];
-    if (_.findIndex(clearances, {userAgent: clearance.userAgent, cookies: clearance.cookies}) == -1) {
+    if (_.findIndex(clearances, {cookies: clearance.cookies}) == -1) {
       clearances.push(clearance);
     }
   }

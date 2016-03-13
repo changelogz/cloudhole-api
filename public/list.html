@@ -17,7 +17,7 @@
     <tbody>
       <tr ng-repeat="clearance in clearances | orderBy:'createDate'">
         <td>
-          <a ng-href="#/clearance/{{ clearance._id }}"><span class="glyphicon glyphicon-edit"></span></a>
+          <a ng-href="#/clearance/{{ clearance._id }}"><span class="glyphicon glyphicon-edit" style="font-size: 2em"></span></a>
         </td>
         <td>
           <div class="well well-sm">{{ clearance.userAgent }}</div>

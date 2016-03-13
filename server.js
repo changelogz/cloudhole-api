@@ -61,7 +61,8 @@ function handleError(res, reason, message, code) {
 
 app.get("/clearances", function(req, res) {
   try {
-    res.status(200).json(clearances);
+    var samples = _.sampleSize(clearances, 5);
+    res.status(200).json(samples);
   }
   catch(e) {
     res.status(204).json(e.message);
@@ -94,14 +95,19 @@ app.post("/clearances", function(req, res) {
 });
 
 app.post("/load", function(req, res) {
-  var loadClearances = req.body;
-
-  for (var i = 0; i < loadClearances.length; i++) {
-    var clearance = loadClearances[i];
+  for (var i = 0; i < req.body.length; i++) {
+    var clearance = req.body[i];
+    if (!clearance.userAgent || !clearance.cookies) {
+      continue;
+    }
     if (_.findIndex(clearances, {cookies: clearance.cookies}) == -1) {
+      if (!clearance._id) {
+        clearance._id = uuid.v4();
+      }
       clearances.push(clearance);
     }
   }
+  saveClearances();
   res.status(201).end();
 });
 

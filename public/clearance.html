@@ -8,6 +8,10 @@
       <h5>Cookies:</h5>
       <div class="well">{{ clearance.cookies }}</div>
     </p>
+    <p>
+      <h5>Key:</h5>
+      <div class="well">{{ clearance.key }}</div>
+    </p>
     <p ng-if="clearance.label">
       <h5>Label:</h5>
       <div class="well well-sm">{{ clearance.label }}</div>
@@ -16,7 +20,7 @@
   <div class="col-md-1">
   </div>
   <div class="col-md-2">
-    <a href="#/"><button style="margin-top:20px" class="btn btn-default" ng-click="deleteClearance(clearance._id)">Delete</button></a>
+    <a href="#/"><button style="margin-top:20px" class="btn btn-default" ng-click="deleteClearance(clearance._id, clearance.key)">Delete</button></a>
   </div>
 </div>
 <div ng-hide="editMode" class="container">

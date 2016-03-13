@@ -1,10 +1,11 @@
 var _ = require("lodash");
-var express = require("express");
 var path = require("path");
-var bodyParser = require("body-parser");
-var jsonfile = require("jsonfile");
-var request = require("request");
+var crypto = require('crypto');
 var uuid = require('node-uuid');
+var request = require("request");
+var express = require("express");
+var jsonfile = require("jsonfile");
+var bodyParser = require("body-parser");
 
 var file = "cloudhole.json";
 var surge = require("surge")({ default: "publish" })
@@ -50,9 +51,22 @@ var server = app.listen(process.env.PORT || 8080, function () {
 
 // Generic error handler used by all endpoints.
 function handleError(res, reason, message, code) {
-  console.log("ERROR: " + reason);
+  console.error("ERROR: " + reason);
   res.status(code || 500).json({"error": message});
 }
+
+app.get("/key", function(req, res) {
+  try {
+    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    var hash = crypto.createHmac('sha256', process.env['SURGE_TOKEN'] || "DevCloudHole")
+                     .update(ip)
+                     .digest('hex');
+    res.status(200).json({'key': hash.substr(0, 7).toUpperCase()});
+  }
+  catch(e) {
+    res.status(500).json(e.message);
+  }
+});
 
 /*  "/clearances"
  *    GET: finds all clearances
@@ -61,8 +75,9 @@ function handleError(res, reason, message, code) {
 
 app.get("/clearances", function(req, res) {
   try {
-    var samples = _.sampleSize(clearances, 5);
-    res.status(200).json(samples);
+    var key = req.headers.authorization || req.params.key;
+    var results = _.filter(clearances, {'key': key});
+    res.status(200).json(results);
   }
   catch(e) {
     res.status(204).json(e.message);
@@ -72,6 +87,13 @@ app.get("/clearances", function(req, res) {
 app.post("/clearances", function(req, res) {
   var newClearance = req.body;
   newClearance.createDate = new Date();
+
+  var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+  if (req.headers.authorization == undefined) {
+    handleError(res, "API key required", "Must provide an API key", 403);
+    return;
+  }
 
   if (!(req.body.userAgent && req.body.cookies)) {
     handleError(res, "Invalid user input", "Must provide a User Agent and Cookies.", 400);
@@ -85,6 +107,7 @@ app.post("/clearances", function(req, res) {
 
   try {
     newClearance._id = uuid.v4();
+    newClearance.key = req.headers.authorization;
     clearances.push(newClearance);
     saveClearances();
     res.status(201).json(newClearance);
@@ -97,7 +120,7 @@ app.post("/clearances", function(req, res) {
 app.post("/load", function(req, res) {
   for (var i = 0; i < req.body.length; i++) {
     var clearance = req.body[i];
-    if (!clearance.userAgent || !clearance.cookies) {
+    if (!clearance.userAgent || !clearance.cookies || !clearance.key) {
       continue;
     }
     if (_.findIndex(clearances, {cookies: clearance.cookies}) == -1) {
@@ -131,7 +154,11 @@ app.put("/clearances/:id", function(req, res) {
   var updateDoc = req.body;
 
   try {
-    var index = _.findIndex(clearances, {_id: req.params.id});
+    var index = _.findIndex(clearances, {_id: req.params.id, key: req.headers.authorization});
+    if (index == -1) {
+      handleError(res, "Unable to find clearance", "ID or Key not found.", 500);
+      return;
+    }
     clearances[index] = updateDoc;
     saveClearances();
     res.status(204).end();
@@ -143,7 +170,11 @@ app.put("/clearances/:id", function(req, res) {
 
 app.delete("/clearances/:id", function(req, res) {
   try {
-    var index = _.findIndex(clearances, {_id: req.params.id});
+    var index = _.findIndex(clearances, {_id: req.params.id, key: req.headers.authorization});
+    if (index == -1) {
+      handleError(res, "Unable to find clearance", "ID or Key not found.", 500);
+      return;
+    }
     clearances.splice(index, 1);
     saveClearances();
     res.status(204).end();

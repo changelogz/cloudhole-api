@@ -2,13 +2,8 @@ angular.module("clearancesApp", ['ngRoute'])
     .config(function($routeProvider) {
         $routeProvider
             .when("/", {
-                templateUrl: "list.html",
                 controller: "ListController",
-                resolve: {
-                    clearances: function(Clearances) {
-                        return Clearances.getClearances();
-                    }
-                }
+                templateUrl: "list.html"
             })
             .when("/new/clearance", {
                 controller: "NewClearanceController",
@@ -23,8 +18,9 @@ angular.module("clearancesApp", ['ngRoute'])
             })
     })
     .service("Clearances", function($http) {
-        this.getClearances = function() {
-            return $http.get("/clearances").
+        this.getClearances = function(key) {
+            var config = {headers: {"Authorization": key}};
+            return $http.get("/clearances", config).
                 then(function(response) {
                     return response;
                 }, function(response) {
@@ -32,7 +28,8 @@ angular.module("clearancesApp", ['ngRoute'])
                 });
         }
         this.createClearance = function(clearance) {
-            return $http.post("/clearances", clearance).
+            var config = {headers: {"Authorization": clearance.key}};
+            return $http.post("/clearances", clearance, config).
                 then(function(response) {
                     return response;
                 }, function(response) {
@@ -50,28 +47,32 @@ angular.module("clearancesApp", ['ngRoute'])
         }
         this.editClearance = function(clearance) {
             var url = "/clearances/" + clearance._id;
-            console.log(clearance._id);
-            return $http.put(url, clearance).
+            var config = {headers: {"Authorization": clearance.key}};
+            return $http.put(url, clearance, config).
                 then(function(response) {
                     return response;
                 }, function(response) {
                     alert("Error editing this clearance.");
-                    console.log(response);
                 });
         }
-        this.deleteClearance = function(clearanceId) {
+        this.deleteClearance = function(clearanceId, key) {
             var url = "/clearances/" + clearanceId;
-            return $http.delete(url).
+            var config = {headers: {"Authorization": key}};
+            return $http.delete(url, config).
                 then(function(response) {
                     return response;
                 }, function(response) {
                     alert("Error deleting this clearance.");
-                    console.log(response);
                 });
         }
     })
-    .controller("ListController", function(clearances, $scope) {
-        $scope.clearances = clearances.data;
+    .controller("ListController", function($scope, $location, Clearances) {
+        var key = $location.search().key;
+        Clearances.getClearances(key).then(function(doc) {
+          $scope.clearances = doc.data;
+        }, function(response) {
+          alert(response);
+        });
     })
     .controller("NewClearanceController", function($scope, $location, Clearances) {
         $scope.back = function() {
@@ -110,7 +111,7 @@ angular.module("clearancesApp", ['ngRoute'])
             $scope.clearanceFormUrl = "";
         }
 
-        $scope.deleteClearance = function(clearanceId) {
-            Clearances.deleteClearance(clearanceId);
+        $scope.deleteClearance = function(clearanceId, key) {
+            Clearances.deleteClearance(clearanceId, key);
         }
     });

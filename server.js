@@ -23,7 +23,6 @@ var saveClearances = function() {
 var clearances = [];
 try {
   clearances = jsonfile.readFileSync(file);
-  saveClearances();
 }
 catch(e) {
   var url = "https://cloudhole.surge.sh/cloudhole.json"
@@ -34,7 +33,6 @@ catch(e) {
     if (!error && response.statusCode === 200) {
       clearances = data;
     }
-    saveClearances();
   });
 }
 

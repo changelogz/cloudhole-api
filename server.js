@@ -101,7 +101,7 @@ app.post("/clearances", function(req, res) {
   }
 
   if (_.findIndex(clearances, {cookies: req.body.cookies}) != -1) {
-    handleError(res, "Duplicate clearance", "UserAgent and cookies already exist.", 400);
+    handleError(res, "Duplicate clearance", "UserAgent and cookies already exist.", 409);
     return;
   }
 
